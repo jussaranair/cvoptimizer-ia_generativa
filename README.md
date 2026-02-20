@@ -190,6 +190,9 @@ O uso do GitHub Copilot foi eficaz nas seguintes partes:
 > - Use st.expander for details
 > - Optionally, add st.line_chart or st.bar_chart to show trends
 
+10.
+> Vários prompts para alterar a paleta de cores das páginas.
+
 Os prompts foram utilizados de forma incremental, com revisão e ajustes manuais após cada geração. Para a criação destes prompts foi utilizada uma ferramenta da IA para auxiliar na adequação.
 
 ---
@@ -207,6 +210,7 @@ Além disso:
 - Não há integração real com IA (por requisito da avaliação)
 - A análise é apenas simulada, não semântica
 - Não há autenticação do usuário
+- Foi necessária várias interações com o modelo para ajustar a paleta de cores em todas as páginas, até que ficasse satisfatória.
 
 ---
 
