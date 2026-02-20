@@ -1,32 +1,51 @@
 import streamlit as st
 from src import cv_database
+from mock_analysis import generate_mock_analysis
+import pandas as pd
 
-st.set_page_config(page_title="Lista de Currículos", page_icon="📋")
-st.title("Currículos Enviados")
+st.set_page_config(page_title="CV Optimizer", page_icon="📋")
 
+st.header("Currículos Enviados")
 resumes = cv_database.get_all_resumes()
 
 if not resumes:
     st.info("Nenhum currículo enviado ainda.")
 else:
-    st.write("## Currículos")
+    # Table header
+    header_cols = st.columns([3, 4, 3, 2])
+    header_cols[0].markdown("**Nome**")
+    header_cols[1].markdown("**E-mail**")
+    header_cols[2].markdown("**Data de Envio**")
+    header_cols[3].markdown("")
+
+    # Table rows
     for resume in resumes:
-        cols = st.columns([3, 4, 3, 2])
-        cols[0].write(resume["name"])
-        cols[1].write(resume["email"])
-        cols[2].write(resume["upload_date"])
-        view_btn = cols[3].button("Ver Análise", key=f"view_{resume['id']}")
+        row_cols = st.columns([3, 4, 3, 2])
+        row_cols[0].write(resume["name"])
+        row_cols[1].write(resume["email"])
+        row_cols[2].write(resume["upload_date"])
+        view_btn = row_cols[3].button("Ver Análise", key=f"view_{resume['id']}")
+
         if view_btn:
-            st.info(f"(Mock) Análise para {resume['name']} (ID: {resume['id']})")
-    # Cabeçalho da tabela
-    st.markdown("""
-    <style>
-    .stColumns > div:first-child { font-weight: bold; }
-    </style>
-    """, unsafe_allow_html=True)
-    st.write("")
-    # Tabela cabeçalho manual
-    st.columns([3, 4, 3, 2])[0].write("**Nome**")
-    st.columns([3, 4, 3, 2])[1].write("**E-mail**")
-    st.columns([3, 4, 3, 2])[2].write("**Data de Envio**")
-    st.columns([3, 4, 3, 2])[3].write("")
+            with st.expander(f"Análise de {resume['name']} ({resume['email']})", expanded=True):
+                analysis = generate_mock_analysis()
+                # Metrics in columns
+                mcols = st.columns(4)
+                mcols[0].metric("Resumo", analysis["summary_score"])
+                mcols[1].metric("Experiência", analysis["experience_score"])
+                mcols[2].metric("Habilidades", analysis["skills_score"])
+                mcols[3].metric("Educação", analysis["education_score"])
+                # Bar chart for scores
+                chart_data = pd.DataFrame({
+                    "Seção": ["Resumo", "Experiência", "Habilidades", "Educação"],
+                    "Pontuação": [
+                        analysis["summary_score"],
+                        analysis["experience_score"],
+                        analysis["skills_score"],
+                        analysis["education_score"],
+                    ],
+                })
+                st.bar_chart(chart_data.set_index("Seção"))
+                # Missing keywords
+                st.markdown("**Palavras-chave faltantes:**")
+                st.write(", ".join(analysis["keywords_missing"]))
