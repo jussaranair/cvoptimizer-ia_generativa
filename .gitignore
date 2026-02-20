@@ -84,3 +84,6 @@ htmlcov/
 
 # Thumbs.db (Windows)
 Thumbs.db
+
+# Uploaded files
+uploads/
