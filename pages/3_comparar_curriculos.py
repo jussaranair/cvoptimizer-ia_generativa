@@ -6,53 +6,68 @@ import pandas as pd
 st.set_page_config(page_title="Comparar Currículos", page_icon="⚖️")
 st.title("Comparar Análises de Currículos")
 
+
 resumes = cv_database.get_all_resumes()
 
 if len(resumes) < 2:
     st.info("Cadastre pelo menos dois currículos para comparar.")
 else:
     options = {f"{r['name']} ({r['email']}) [{r['upload_date']}]": r for r in resumes}
-    col1, col2 = st.columns(2)
-    with col1:
-        sel1 = st.selectbox("Currículo 1", list(options.keys()), key="sel1")
-    with col2:
-        sel2 = st.selectbox("Currículo 2", list(options.keys()), key="sel2")
-    if sel1 == sel2:
-        st.warning("Selecione dois currículos diferentes.")
-    else:
-        r1 = options[sel1]
-        r2 = options[sel2]
-        a1 = generate_mock_analysis()
-        a2 = generate_mock_analysis()
-        # Scores lado a lado
-        st.subheader("Pontuações por Seção")
-        score_labels = ["Resumo", "Experiência", "Habilidades", "Educação"]
-        keys = ["summary_score", "experience_score", "skills_score", "education_score"]
-        table = []
-        for label, k in zip(score_labels, keys):
-            v1 = a1[k]
-            v2 = a2[k]
-            # Cores: verde se melhorou, vermelho se piorou, cinza igual
-            if v2 > v1:
-                color1 = "#ffcccc"  # vermelho claro
-                color2 = "#ccffcc"  # verde claro
-            elif v2 < v1:
-                color1 = "#ccffcc"
-                color2 = "#ffcccc"
-            else:
-                color1 = color2 = "#f0f0f0"
-            table.append((label, v1, v2, color1, color2))
-        # Renderizar tabela customizada
-        st.markdown("<style>th,td {text-align:center !important;}</style>", unsafe_allow_html=True)
-        st.write("<table><tr><th>Seção</th><th>Currículo 1</th><th>Currículo 2</th></tr>", unsafe_allow_html=True)
-        for label, v1, v2, c1, c2 in table:
-            st.write(f"<tr><td>{label}</td><td style='background-color:{c1}'>{v1}</td><td style='background-color:{c2}'>{v2}</td></tr>", unsafe_allow_html=True)
-        st.write("</table>", unsafe_allow_html=True)
-        # Palavras-chave faltantes
-        c1, c2 = st.columns(2)
-        with c1:
-            st.write(f"**Palavras-chave faltantes ({r1['name']}):**")
-            st.write(", ".join(a1["keywords_missing"]))
-        with c2:
-            st.write(f"**Palavras-chave faltantes ({r2['name']}):**")
-            st.write(", ".join(a2["keywords_missing"]))
+    tab1, tab2 = st.tabs(["Selecionar Currículos", "Comparação Visual"])
+
+    with tab1:
+        col1, col2 = st.columns(2)
+        with col1:
+            sel1 = st.selectbox("Currículo 1", list(options.keys()), key="sel1")
+        with col2:
+            sel2 = st.selectbox("Currículo 2", list(options.keys()), key="sel2")
+        if sel1 == sel2:
+            st.warning("Selecione dois currículos diferentes.")
+        else:
+            r1 = options[sel1]
+            r2 = options[sel2]
+            a1 = generate_mock_analysis()
+            a2 = generate_mock_analysis()
+
+            st.subheader("Pontuações por Seção")
+            score_labels = ["Resumo", "Experiência", "Habilidades", "Educação"]
+            keys = ["summary_score", "experience_score", "skills_score", "education_score"]
+            # Métricas lado a lado
+            for i, label in enumerate(score_labels):
+                cols = st.columns(2)
+                v1 = a1[keys[i]]
+                v2 = a2[keys[i]]
+                delta = v2 - v1
+                color = "normal"
+                if delta > 0:
+                    color = "inverse"  # verde
+                elif delta < 0:
+                    color = "off"  # vermelho
+                cols[0].metric(f"{label} (1)", v1)
+                cols[1].metric(f"{label} (2)", v2, delta=delta)
+
+            # Expander para detalhes
+            with st.expander("Detalhes das Análises e Palavras-chave Faltantes"):
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.write(f"**Palavras-chave faltantes ({r1['name']}):**")
+                    st.write(", ".join(a1["keywords_missing"]))
+                with c2:
+                    st.write(f"**Palavras-chave faltantes ({r2['name']}):**")
+                    st.write(", ".join(a2["keywords_missing"]))
+
+    with tab2:
+        # Gráfico de barras comparativo
+        if 'sel1' in locals() and 'sel2' in locals() and sel1 != sel2:
+            r1 = options[sel1]
+            r2 = options[sel2]
+            a1 = generate_mock_analysis()
+            a2 = generate_mock_analysis()
+            chart_data = {
+                'Seção': score_labels,
+                f'{r1["name"]}': [a1[k] for k in keys],
+                f'{r2["name"]}': [a2[k] for k in keys],
+            }
+            df = pd.DataFrame(chart_data).set_index('Seção')
+            st.bar_chart(df)
+            st.write("As barras mostram a pontuação de cada seção para ambos os currículos.")
