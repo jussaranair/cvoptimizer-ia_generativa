@@ -1,0 +1,86 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Pytest
+.pytest_cache/
+
+# IPython / Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Environment variables
+.env
+.env.*
+
+# Pipenv / Poetry
+Pipfile.lock
+poetry.lock
+
+# Logs
+*.log
+logs/
+debug.log
+
+# SQLite files (databases and journal/wal files)
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Streamlit
+.streamlit/
+streamlit.log
+
+# Optional: dataset / model artifacts
+# Uncomment if you keep data or model artifacts locally and don't want them in git
+# data/
+# models/
+# *.ckpt
+# *.pth
+# *.pt
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/
+
+# mypy / pyre
+.mypy_cache/
+.pyre/
+
+# Editor swap files
+*~
+*.swp
+*.swo
+
+# Thumbs.db (Windows)
+Thumbs.db
