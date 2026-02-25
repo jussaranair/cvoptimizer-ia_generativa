@@ -1,7 +1,15 @@
+
 import streamlit as st
 from src import cv_database
 from mock_analysis import generate_mock_analysis
 import pandas as pd
+from pathlib import Path
+
+# Verifica existência do banco de dados
+db_path = Path(__file__).resolve().parent.parent.parent / "cvoptimizer.db"
+if not db_path.exists():
+    st.warning("O banco de dados ainda não foi criado. Envie pelo menos um currículo para inicializar o sistema.")
+    st.stop()
 
 st.set_page_config(page_title="CV Optimizer", page_icon="📋")
 #st.header("Currículos Enviados")
