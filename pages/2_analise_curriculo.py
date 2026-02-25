@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 
 # Verifica existência do banco de dados
-db_path = Path(__file__).resolve().parent.parent.parent / "cvoptimizer.db"
+db_path = Path(__file__).resolve().parent.parent / "cvoptimizer.db"
 if not db_path.exists():
     st.warning("O banco de dados ainda não foi criado. Envie pelo menos um currículo para inicializar o sistema.")
     st.stop()
