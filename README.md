@@ -1,6 +1,8 @@
-# CVOptimizer — Projeto de Avaliação Intermediária  
 
-Aplicação web para análise e otimização de currículos (CV) desenvolvida com Streamlit e armazenamento local em SQLite.
+# CVOptimizer — Projeto de Avaliação Final
+
+
+Aplicação web para análise e otimização de currículos (CV) desenvolvida com Streamlit, armazenamento local em SQLite e integração com IA generativa.
 
 > Observação: Este README foi estruturado com o auxílio de um modelo de IA.
 
@@ -51,22 +53,29 @@ O módulo `mock_analysis.py` poderá ser substituído por chamadas reais a APIs 
 
 ---
 
-# 2. Escolhas de Design
+
+# 2. Escolhas de Design e Estrutura do Projeto
+
 
 ## Arquitetura
 
 - **Framework Web:** Streamlit  
 - **Banco de Dados:** SQLite (via `sqlite3`)
 - **Modelo para desenvolvimento:** GitHub Copilot 
-- **Estrutura modular:**
-  - `app.py`
-  - `database.py`
-  - `mock_analysis.py`
-  - `pages/*.py`
+- **Estrutura modular e preparada para IA generativa:**
+  - `app.py` — inicialização e interface principal
+  - `src/` — módulos de lógica e banco de dados
+  - `pages/` — páginas Streamlit
+  - `mock_analysis.py` — simulação de análise (será substituído pela IA)
+  - `llm_integration.py` — integração central com modelos de linguagem (LLM)
+  - `prompts/` — arquivos de prompt, incluindo `system_prompt.txt`
+  - `tools/` — scripts e definições de ferramentas customizadas para o LLM
 
 ---
 
-## Justificativas
+
+## Justificativas e Atualizações
+
 
 ### Por que Streamlit?
 
@@ -75,12 +84,14 @@ O módulo `mock_analysis.py` poderá ser substituído por chamadas reais a APIs 
 - Ideal para MVP
 - Deploy simples via Streamlit Cloud
 
+
 ### Por que SQLite?
 
 - Banco leve e nativo do Python
 - Não exige servidor externo
 - Fácil integração
 - Ideal para protótipo funcional
+
 
 ### Por que GitHub Copilot?
 
@@ -90,6 +101,7 @@ O módulo `mock_analysis.py` poderá ser substituído por chamadas reais a APIs 
 - Resultados satisfatórios
 
 ---
+
 
 ## Componentes de UI utilizados
 
@@ -103,12 +115,14 @@ Esses componentes foram escolhidos para tornar a interface visualmente rica, mes
 
 ---
 
+
 ## Alternativas Consideradas
 
 - React + FastAPI → descartado por aumentar complexidade e tempo de implementação
 - Gradio → menos flexível para múltiplas páginas e persistência estruturada
 
 ---
+
 
 # 3. O que Funcionou Bem
 
@@ -197,6 +211,7 @@ Os prompts foram utilizados de forma incremental, com revisão e ajustes manuais
 
 ---
 
+
 # 4. O que Não Funcionou / Limitações
 
 Algumas limitações e ajustes necessários:
@@ -213,6 +228,7 @@ Além disso:
 - Foi necessária várias interações com o modelo para ajustar a paleta de cores em todas as páginas, até que ficasse satisfatória.
 
 ---
+
 
 # 5. Uso Efetivo do Agente de Codificação
 
@@ -248,6 +264,7 @@ https://cvoptimizer-iagenerativa-aeypxfwpdwtmmftazjefvt.streamlit.app
 
 ---
 
+
 # Requisitos
 
 - Python 3.8+ (recomendado 3.12+)  
@@ -255,6 +272,8 @@ https://cvoptimizer-iagenerativa-aeypxfwpdwtmmftazjefvt.streamlit.app
 - sqlite3 (nativo do Python)
 
 ---
+
+
 
 # Conclusão
 
