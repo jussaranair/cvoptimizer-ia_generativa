@@ -153,6 +153,7 @@ else:
 
         if view_btn:
             with st.expander(f"Análise de {resume['name']} ({resume['email']})", expanded=True):
+                # TODO: Substituir generate_mock_analysis() por chamada à IA generativa
                 analysis = generate_mock_analysis()
                 st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
                 # Metrics in columns
@@ -161,7 +162,7 @@ else:
                 mcols[1].metric("Experiência", analysis["experience_score"])
                 mcols[2].metric("Habilidades", analysis["skills_score"])
                 mcols[3].metric("Educação", analysis["education_score"])
-                # Bar chart for scores
+                # TODO: Substituir chart_data/bar_chart por dados vindos da IA generativa
                 chart_data = pd.DataFrame({
                     "Seção": ["Resumo", "Experiência", "Habilidades", "Educação"],
                     "Pontuação": [
@@ -172,7 +173,7 @@ else:
                     ],
                 })
                 st.bar_chart(chart_data.set_index("Seção"))
-                # Missing keywords
+                # TODO: Substituir keywords_missing por lista gerada pela IA generativa
                 st.markdown("<div style='margin-top:1rem; font-weight:600; color:#2563EB;'>Palavras-chave faltantes:</div>", unsafe_allow_html=True)
                 st.write(", ".join(analysis["keywords_missing"]))
 
