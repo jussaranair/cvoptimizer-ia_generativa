@@ -2,7 +2,8 @@
 # CVOptimizer — Projeto de Avaliação Final
 
 
-Aplicação web para análise e otimização de currículos (CV) desenvolvida com Streamlit, armazenamento local em SQLite e integração com IA generativa.
+
+Aplicação web para análise e otimização de currículos (CV) desenvolvida com Streamlit, armazenamento local em SQLite e integração real com IA generativa (Groq Llama 3-70B).
 
 > Observação: Este README foi estruturado com o auxílio de um modelo de IA.
 
@@ -34,22 +35,33 @@ O **CVOptimizer** é uma aplicação web que:
 - Mostra palavras-chave ausentes
 - Permite comparação entre análises
 
-Nesta versão, a análise é **simulada (mock)**, mas toda a arquitetura foi projetada para permitir futura integração com IA generativa real.
+Nesta versão, a análise é **realizada por IA generativa** (Groq Llama 3-70B via API Groq), sem mais uso de mocks. O sistema faz extração do texto do currículo, envia para o LLM com um prompt estruturado e armazena o resultado analisado no banco de dados.
 
 ---
 
-## Integração Futura com IA Generativa
 
-A aplicação foi estruturada de forma modular para permitir que, futuramente, um modelo de IA possa:
+## Fluxo de Integração com IA Generativa
 
-- Extrair automaticamente informações de PDFs/DOCX
-- Avaliar semanticamente o conteúdo do currículo
-- Sugerir melhorias personalizadas por seção
-- Reescrever trechos automaticamente
-- Ajustar o currículo para uma vaga específica
-- Calcular compatibilidade com descrição de vaga
+O fluxo atual é:
 
-O módulo `mock_analysis.py` poderá ser substituído por chamadas reais a APIs de LLM.
+1. Upload do currículo (PDF/DOCX)
+2. Extração do texto do arquivo
+3. Montagem do prompt (ver `prompts/system_prompt.txt`)
+4. Envio do texto e prompt para o LLM (Groq Llama 3-70B)
+5. Parsing do output JSON retornado pelo modelo
+6. Armazenamento da análise no banco SQLite
+7. Exibição dos resultados na interface
+
+Diagrama do fluxo:
+
+```mermaid
+graph TD;
+  A[Upload do currículo] --> B[Extração do texto];
+  B --> C[Prompt + Texto para LLM];
+  C --> D[Resposta JSON do LLM];
+  D --> E[Parsing e Armazenamento];
+  E --> F[Exibição na UI]
+```
 
 ---
 
@@ -66,7 +78,7 @@ O módulo `mock_analysis.py` poderá ser substituído por chamadas reais a APIs 
   - `app.py` — inicialização e interface principal
   - `src/` — módulos de lógica e banco de dados
   - `pages/` — páginas Streamlit
-  - `mock_analysis.py` — simulação de análise (será substituído pela IA)
+  - `mock_analysis.py` — (obsoleto, mantido apenas para referência)
   - `llm_integration.py` — integração central com modelos de linguagem (LLM)
   - `prompts/` — arquivos de prompt, incluindo `system_prompt.txt`
   - `tools/` — scripts e definições de ferramentas customizadas para o LLM
@@ -124,7 +136,70 @@ Esses componentes foram escolhidos para tornar a interface visualmente rica, mes
 ---
 
 
-# 3. O que Funcionou Bem
+
+# 3. Decisões de Engenharia de LLM
+
+## Modelo Escolhido
+
+- **Groq Llama 3-70B** via API Groq
+- Escolhido por ser um modelo de alta qualidade, com bom custo-benefício, contexto amplo, fácil integração via API REST e possui uso gratuito limitado.
+- Limitações: não suporta tool calling nativo, pode retornar texto fora do formato JSON esperado, latência moderada.
+
+## Framework e Integração
+
+- Integração direta via requests (sem LangChain ou SDKs complexos)
+- Justificativa: simplicidade, controle total do payload, menos dependências, fácil debug.
+
+## System Prompt
+
+O prompt principal está em `prompts/system_prompt.txt`:
+
+```txt
+# Prompt para análise completa de currículo (usado em analyze_resume_llm)
+ANALYZE_RESUME_PROMPT:
+Você é um assistente especialista em análise de currículos para vagas de tecnologia. Receberá o texto de um currículo e deve retornar uma análise estruturada em formato JSON, com os seguintes campos:
+{
+        "summary_score": (pontuação de 0 a 100 para o resumo/apresentação do candidato),
+        "experience_score": (pontuação de 0 a 100 para a experiência profissional),
+        "skills_score": (pontuação de 0 a 100 para habilidades técnicas),
+        "education_score": (pontuação de 0 a 100 para formação acadêmica),
+        "keywords_missing": [lista de 3 a 5 palavras-chave técnicas importantes que estão faltando ou pouco detalhadas no currículo]
+}
+Avalie cada seção de acordo com a clareza, relevância e aderência a vagas de tecnologia. Seja objetivo e não inclua comentários fora do JSON.%
+```
+
+**Decisões:**
+- Persona definida: "Você é um assistente especialista em análise de currículos para vagas de tecnologia"
+- Instruções claras para análise por seção
+- Especificação do formato de saída (JSON)
+- Restrições para evitar respostas fora do padrão
+- Foram feitos testes para garantir que o modelo sempre retorne JSON válido, ajustando instruções e exemplos.
+
+## Parâmetros do Modelo
+
+- Temperatura: 0.2 (valores baixos tendem a garantir mais consistência no formato)
+- max_tokens: 1024
+- Modelo: llama-3.3-70b-versatile
+
+## Ferramentas (Tools)
+
+- Não foram implementadas ferramentas customizadas (tool calling) pois o modelo e o escopo não exigiam.
+- Justificativa: o objetivo era análise textual, sem necessidade de funções externas.
+
+## Estratégia de Prompting
+
+- Uso de instruções explícitas, formato JSON
+- Não foi necessário few-shot ou CoT devido à tarefa ser bem definida
+
+## Trade-offs e Limitações
+
+- Simplicidade da arquitetura facilita manutenção
+- Limitação: se o modelo retornar texto fora do JSON, é feito parsing
+- Não há RAG ou agentes, pois não agregaria valor ao caso de uso
+- A ferramenta é de uso generalizado para área de tecnologia, não focando em uma vaga ou sub-área específica.
+- Conteúdo adverso pode ser avaliado, mesmo que com potuação baixa.
+
+# 4. O que Funcionou Bem
 
 O uso do GitHub Copilot foi eficaz nas seguintes partes:
 
@@ -133,9 +208,12 @@ O uso do GitHub Copilot foi eficaz nas seguintes partes:
 - Funções CRUD básicas
 - Conexão e inicialização do banco
 
-### ✔ Mock de Análise
-- Geração de função com scores aleatórios
-- Simulação de palavras-chave ausentes
+
+### ✔ Integração Real com IA Generativa
+- Extração automática do texto do currículo
+- Prompt estruturado e iterado
+- Parsing robusto do output do LLM
+- Armazenamento e exibição dos resultados reais
 
 ### ✔ Interface Streamlit
 - Página de upload
@@ -209,10 +287,12 @@ O uso do GitHub Copilot foi eficaz nas seguintes partes:
 
 Os prompts foram utilizados de forma incremental, com revisão e ajustes manuais após cada geração. Para a criação destes prompts foi utilizada uma ferramenta da IA para auxiliar na adequação.
 
+* Para esta segunda fase do trabalho houve uma maior necessidade de correção nos resultados apresentados pelo Copilot. Houve a necessidade de muitos prompts solicitando correções e adaptações ao que havia sido implementado. Em alguns casos, foi necessário correção manual. Desta forma, não serão apresentados aqui todos os prompts utilizados nesta etapa do trabalho. 
+
 ---
 
 
-# 4. O que Não Funcionou / Limitações
+# 5. O que Não Funcionou / Limitações
 
 Algumas limitações e ajustes necessários:
 
@@ -220,17 +300,18 @@ Algumas limitações e ajustes necessários:
 - Tabela da aba "Lista currículo", foi gerada pelo Copilot com o cabeçalho no final e uma por linha.
 - Na ausência de dados no banco as abas contidas no diretório pages "quebram".
 
+
 Além disso:
 
-- Não há integração real com IA (por requisito da avaliação)
-- A análise é apenas simulada, não semântica
+- O modelo ocasionalmente retorna texto fora do JSON esperado (mitigado com parsing)
 - Não há autenticação do usuário
-- Foi necessária várias interações com o modelo para ajustar a paleta de cores em todas as páginas, até que ficasse satisfatória.
+- Não há RAG, agentes ou tool calling avançado
+- Foram necessárias várias iterações no prompt para garantir robustez e corrigir pequenos erros e inconsistências.
 
 ---
 
 
-# 5. Uso Efetivo do Agente de Codificação
+# 6. Uso Efetivo do Agente de Codificação
 
 O projeto foi desenvolvido majoritariamente com auxílio do GitHub Copilot.
 
@@ -270,6 +351,9 @@ https://cvoptimizer-iagenerativa-aeypxfwpdwtmmftazjefvt.streamlit.app
 - Python 3.8+ (recomendado 3.12+)  
 - streamlit  
 - sqlite3 (nativo do Python)
+- PyPDF2
+- docx2txt
+- requests
 
 ---
 
@@ -282,5 +366,6 @@ O CVOptimizer demonstra:
 - Estrutura completa de aplicação web
 - Persistência de dados
 - Interface interativa
-- Fluxo preparado para integração futura com IA generativa
+- Integração real e robusta com IA generativa
+- Decisões de engenharia de LLM documentadas e justificadas
 - Uso extensivo e documentado de agente de codificação
