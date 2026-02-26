@@ -1,7 +1,9 @@
+
 import streamlit as st
 import os
 from pathlib import Path
 from src import cv_database
+from src.resume_text_utils import analyze_and_store_resume
 
 st.set_page_config(page_title="CV Optimizer - Upload Currículo", page_icon="📄")
 #st.title("CV Optimizer")
@@ -141,6 +143,14 @@ if submit:
         resume_id = cv_database.insert_resume(name, email, str(file_path))
         st.success(f"Currículo enviado com sucesso! ID: {resume_id}")
         st.info(f"Arquivo salvo em: {file_path}")
+
+        # Extração e análise automática do currículo
+        with st.spinner("Extraindo texto e analisando currículo com IA..."):
+            analysis_id = analyze_and_store_resume(resume_id)
+        if analysis_id:
+            st.success(f"Análise automática concluída e salva! ID da análise: {analysis_id}")
+        else:
+            st.warning("Não foi possível realizar a análise automática do currículo.")
 
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<div style='margin-top:2rem; text-align:center; color:#000000;'>CV Optimizer &copy; 2026</div>", unsafe_allow_html=True)

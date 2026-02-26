@@ -34,3 +34,7 @@ tornado==6.5.4
 typing_extensions==4.15.0
 tzdata==2025.3
 urllib3==2.6.3
+# Dependências para extração de texto e integração LLM
+docx2txt==0.9
+PyPDF2==3.0.1
+python-dotenv==1.0.1
