@@ -153,29 +153,29 @@ else:
 
         if view_btn:
             with st.expander(f"Análise de {resume['name']} ({resume['email']})", expanded=True):
-                # TODO: Substituir generate_mock_analysis() por chamada à IA generativa
-                analysis = generate_mock_analysis()
-                st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
-                # Metrics in columns
-                mcols = st.columns(4)
-                mcols[0].metric("Resumo", analysis["summary_score"])
-                mcols[1].metric("Experiência", analysis["experience_score"])
-                mcols[2].metric("Habilidades", analysis["skills_score"])
-                mcols[3].metric("Educação", analysis["education_score"])
-                # TODO: Substituir chart_data/bar_chart por dados vindos da IA generativa
-                chart_data = pd.DataFrame({
-                    "Seção": ["Resumo", "Experiência", "Habilidades", "Educação"],
-                    "Pontuação": [
-                        analysis["summary_score"],
-                        analysis["experience_score"],
-                        analysis["skills_score"],
-                        analysis["education_score"],
-                    ],
-                })
-                st.bar_chart(chart_data.set_index("Seção"))
-                # TODO: Substituir keywords_missing por lista gerada pela IA generativa
-                st.markdown("<div style='margin-top:1rem; font-weight:600; color:#2563EB;'>Palavras-chave faltantes:</div>", unsafe_allow_html=True)
-                st.write(", ".join(analysis["keywords_missing"]))
+                analyses = cv_database.get_analyses_for_resume(resume['id'])
+                if not analyses:
+                    st.info("Nenhuma análise disponível para este currículo.")
+                else:
+                    analysis = analyses[0]  # Most recent analysis
+                    st.markdown("<div style='margin-bottom:1rem;'></div>", unsafe_allow_html=True)
+                    mcols = st.columns(4)
+                    mcols[0].metric("Resumo", analysis["summary_score"])
+                    mcols[1].metric("Experiência", analysis["experience_score"])
+                    mcols[2].metric("Habilidades", analysis["skills_score"])
+                    mcols[3].metric("Educação", analysis["education_score"])
+                    chart_data = pd.DataFrame({
+                        "Seção": ["Resumo", "Experiência", "Habilidades", "Educação"],
+                        "Pontuação": [
+                            analysis["summary_score"],
+                            analysis["experience_score"],
+                            analysis["skills_score"],
+                            analysis["education_score"],
+                        ],
+                    })
+                    st.bar_chart(chart_data.set_index("Seção"))
+                    st.markdown("<div style='margin-top:1rem; font-weight:600; color:#2563EB;'>Palavras-chave faltantes:</div>", unsafe_allow_html=True)
+                    st.write(", ".join(analysis["keywords_missing"]))
 
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<div style='margin-top:2rem; text-align:center; color:#000000;'>CV Optimizer &copy; 2026</div>", unsafe_allow_html=True)

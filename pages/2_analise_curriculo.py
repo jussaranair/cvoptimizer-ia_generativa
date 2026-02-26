@@ -141,7 +141,11 @@ else:
     resume = options[selected]
 
     # TODO: Substituir generate_mock_analysis() por chamada à IA generativa
-    analysis = generate_mock_analysis()
+    analyses = cv_database.get_analyses_for_resume(resume['id'])
+    if not analyses:
+        st.info("Nenhuma análise disponível para este currículo.")
+        st.stop()
+    analysis = analyses[0]  # Most recent analysis
 
     st.markdown(f"<div class='card-section-title'>Análise de: {resume['name']}</div>", unsafe_allow_html=True)
 

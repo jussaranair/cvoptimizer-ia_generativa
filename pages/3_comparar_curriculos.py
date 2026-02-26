@@ -153,8 +153,13 @@ else:
             r2 = options[sel2]
 
             # TODO: Substituir generate_mock_analysis() por chamada à IA generativa para ambos os currículos
-            a1 = generate_mock_analysis()
-            a2 = generate_mock_analysis()
+            analyses1 = cv_database.get_analyses_for_resume(r1['id'])
+            analyses2 = cv_database.get_analyses_for_resume(r2['id'])
+            if not analyses1 or not analyses2:
+                st.info("Ambos os currículos precisam ter pelo menos uma análise.")
+                st.stop()
+            a1 = analyses1[0]
+            a2 = analyses2[0]
 
             st.markdown("<div class='card-section-title' style='margin-top:1rem;'>Pontuações por Seção</div>", unsafe_allow_html=True)
             score_labels = ["Resumo", "Experiência", "Habilidades", "Educação"]
@@ -187,8 +192,13 @@ else:
         if 'sel1' in locals() and 'sel2' in locals() and sel1 != sel2:
             r1 = options[sel1]
             r2 = options[sel2]
-            a1 = generate_mock_analysis()
-            a2 = generate_mock_analysis()
+            analyses1 = cv_database.get_analyses_for_resume(r1['id'])
+            analyses2 = cv_database.get_analyses_for_resume(r2['id'])
+            if not analyses1 or not analyses2:
+                st.info("Ambos os currículos precisam ter pelo menos uma análise.")
+                st.stop()
+            a1 = analyses1[0]
+            a2 = analyses2[0]
             chart_data = {
                 'Seção': score_labels,
                 f'{r1["name"]}': [a1[k] for k in keys],
