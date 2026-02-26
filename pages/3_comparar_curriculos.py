@@ -142,10 +142,13 @@ else:
 
     with tab1:
         col1, col2 = st.columns(2)
+        option_keys = list(options.keys())
         with col1:
-            sel1 = st.selectbox("Currículo 1", list(options.keys()), key="sel1")
+            sel1 = st.selectbox("Currículo 1", option_keys, key="sel1")
+        # Seleciona por padrão o primeiro diferente de sel1
+        default_sel2 = next((k for k in option_keys if k != sel1), option_keys[0]) if len(option_keys) > 1 else option_keys[0]
         with col2:
-            sel2 = st.selectbox("Currículo 2", list(options.keys()), key="sel2")
+            sel2 = st.selectbox("Currículo 2", option_keys, index=option_keys.index(default_sel2), key="sel2")
         if sel1 == sel2:
             st.warning("Selecione dois currículos diferentes.")
         else:
