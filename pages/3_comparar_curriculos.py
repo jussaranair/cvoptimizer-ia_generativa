@@ -155,7 +155,6 @@ else:
             r1 = options[sel1]
             r2 = options[sel2]
 
-            # TODO: Substituir generate_mock_analysis() por chamada à IA generativa para ambos os currículos
             analyses1 = cv_database.get_analyses_for_resume(r1['id'])
             analyses2 = cv_database.get_analyses_for_resume(r2['id'])
             if not analyses1 or not analyses2:
@@ -168,7 +167,6 @@ else:
             score_labels = ["Resumo", "Experiência", "Habilidades", "Educação"]
             keys = ["summary_score", "experience_score", "skills_score", "education_score"]
 
-            # TODO: Substituir métricas por dados vindos da IA generativa
             for i, label in enumerate(score_labels):
                 cols = st.columns(2)
                 v1 = a1[keys[i]]
@@ -178,7 +176,6 @@ else:
                 cols[1].metric(f"{label} (2)", v2, delta=delta)
 
 
-            # TODO: Substituir keywords_missing por listas geradas pela IA generativa
             with st.expander("Detalhes das Análises e Palavras-chave Faltantes"):
                 c1, c2 = st.columns(2)
                 with c1:
@@ -191,7 +188,6 @@ else:
     with tab2:
         # Gráfico de barras comparativo
 
-        # TODO: Substituir chart_data/bar_chart por dados vindos da IA generativa
         if 'sel1' in locals() and 'sel2' in locals() and sel1 != sel2:
             r1 = options[sel1]
             r2 = options[sel2]

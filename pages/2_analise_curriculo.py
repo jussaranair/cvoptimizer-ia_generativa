@@ -140,7 +140,6 @@ else:
     selected = st.selectbox("Selecione um currículo para analisar:", list(options.keys()))
     resume = options[selected]
 
-    # TODO: Substituir generate_mock_analysis() por chamada à IA generativa
     analyses = cv_database.get_analyses_for_resume(resume['id'])
     if not analyses:
         st.info("Nenhuma análise disponível para este currículo.")
@@ -149,7 +148,6 @@ else:
 
     st.markdown(f"<div class='card-section-title'>Análise de: {resume['name']}</div>", unsafe_allow_html=True)
 
-    # TODO: Substituir métricas por dados vindos da IA generativa
     cols = st.columns(4)
     cols[0].metric("Resumo", analysis["summary_score"])
     cols[1].metric("Experiência", analysis["experience_score"])
@@ -159,7 +157,6 @@ else:
     st.markdown("<div style='margin-top:2rem;'></div>", unsafe_allow_html=True)
     st.markdown("<div class='card-section-title'>Pontuação por Seção</div>", unsafe_allow_html=True)
 
-    # TODO: Substituir chart_data/bar_chart por dados vindos da IA generativa
     chart_data = pd.DataFrame({
         "Seção": ["Resumo", "Experiência", "Habilidades", "Educação"],
         "Pontuação": [
@@ -172,7 +169,6 @@ else:
     st.bar_chart(chart_data.set_index("Seção"))
 
 
-    # TODO: Substituir keywords_missing por lista gerada pela IA generativa
     with st.expander("Palavras-chave faltantes"):
         st.markdown("<div style='font-weight:600; color:#2563EB;'>Palavras-chave faltantes:</div>", unsafe_allow_html=True)
         st.write(", ".join(analysis["keywords_missing"]))
