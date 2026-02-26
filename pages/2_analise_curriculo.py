@@ -1,7 +1,7 @@
 
 import streamlit as st
 from src import cv_database
-from mock_analysis import generate_mock_analysis
+
 import pandas as pd
 from pathlib import Path
 
